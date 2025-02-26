@@ -1,0 +1,9 @@
+#!name=Lyricify Mitm 歌词
+#!desc=用于 Spotify，仓库地址：https://github.com/WXRIW/Lyricify-App
+#!openUrl=https://github.com/WXRIW/Lyricify-App
+
+[Mitm]
+hostname =spclient.wg.spotify.com
+
+[Script]
+http-response ^https:\/\/spclient\.wg\.spotify\.com\/color-lyrics\/v2\/track\/ script-path=https://res.lyricify.app/lyricify/lyricify_lyrics/SpotifyLyricsTest2024.js, requires-body=true, binary-body-mode=true, timeout=10, tag=Lyricify-Mitm
