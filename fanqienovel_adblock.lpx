@@ -1,0 +1,17 @@
+#!name=番茄小说广告屏蔽
+#!desc=屏蔽番茄小说中常见的穿山甲/字节广告请求，不影响正常阅读与观看。
+#!icon=https://raw.githubusercontent.com/github/explore/main/topics/book/book.png
+#!author=GitHub Copilot
+#!openUrl=
+
+[Rule]
+# 番茄小说广告拦截规则
+DOMAIN,api-access.pangolin-sdk-toutiao.com,REJECT
+DOMAIN,p3-ad-sign.byteimg.com,REJECT
+DOMAIN,p6-ad-sign.byteimg.com,REJECT
+DOMAIN,p9-ad-sign.byteimg.com,REJECT
+DOMAIN-SUFFIX,be-pack-sign.pglstatp-toutiao.com,REJECT
+DOMAIN-SUFFIX,be-pack.pglstatp-toutiao.com,REJECT
+DOMAIN-SUFFIX,be-pack-nxyd.pglstatp-toutiao.com,REJECT
+
+# 以上规则仅屏蔽广告请求域名，不影响番茄小说的正常内容加载和观看。
