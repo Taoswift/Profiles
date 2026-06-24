@@ -1,0 +1,31 @@
+#!name=红果短剧广告屏蔽（扩展）
+#!desc=扩展版：合并社区常见穿山甲/字节广告域名，优先使用后缀匹配以降低误杀风险。
+#!icon=https://raw.githubusercontent.com/github/explore/main/topics/drama/drama.png
+#!author=GitHub Copilot
+#!openUrl=https://www.hongguo.com
+
+[Rule]
+# 后缀级别屏蔽（覆盖大量动态子域名，降低维护成本）
+DOMAIN-SUFFIX,pangolin-sdk-toutiao.com,REJECT
+DOMAIN,api-access.pangolin-sdk-toutiao.com,REJECT
+DOMAIN-SUFFIX,pglstatp-toutiao.com,REJECT
+DOMAIN-SUFFIX,byteimg.com,REJECT
+DOMAIN-SUFFIX,adkwai.com,REJECT
+DOMAIN-SUFFIX,zijieapi.com,REJECT
+DOMAIN-SUFFIX,yximgs.com,REJECT
+DOMAIN-SUFFIX,yximg.com,REJECT
+
+# 兼容性较高的具体主机（若你更保守，可仅保留上面的后缀规则）
+DOMAIN,p3-ad-sign.byteimg.com,REJECT
+DOMAIN,p6-ad-sign.byteimg.com,REJECT
+DOMAIN,p9-ad-sign.byteimg.com,REJECT
+DOMAIN-SUFFIX,be-pack-sign.pglstatp-toutiao.com,REJECT
+DOMAIN-SUFFIX,be-pack.pglstatp-toutiao.com,REJECT
+DOMAIN-SUFFIX,be-pack-nxyd.pglstatp-toutiao.com,REJECT
+
+# 说明：
+# 1) 使用后缀规则可以覆盖 p1-/p2-/v1- 等大量子域名（例如 p1-be-pack-sign.pglstatp-toutiao.com）。
+# 2) 为尽量减少对正常服务的影响，我仅添加广告/签名/CDN 相关后缀，不屏蔽 hongguo.com 等业务主域名。
+# 3) 若发现某些短剧功能异常，请暂时禁用本插件或将对应域名加入白名单。
+
+#!date=2026-06-24
