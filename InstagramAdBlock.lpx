@@ -1,0 +1,23 @@
+#!name=Instagram 去广告
+#!desc=纯规则版 Instagram 广告屏蔽，不依赖外部 JS，优先拦截 Instagram 广告相关域名与 API 请求。
+#!icon=https://raw.githubusercontent.com/github/explore/main/topics/instagram/instagram.png
+#!author=GitHub Copilot
+#!date=2026-06-25
+
+[Rule]
+# 目标拦截 Instagram 广告域名与常见广告 API 请求
+URL-REGEX,^https?://i\.instagram\.com/api/v1/(?:ads|adaccounts|ad_recommendations|advertiser|ad_campaigns|stories/.*(?:ad|sponsored)|feed/.*(?:ad|sponsored)|discover/.*(?:ad|sponsored)|.*(?:promoted|sponsored|ads?)).*$,REJECT
+URL-REGEX,^https?://.*\.cdninstagram\.com/.*(?:sponsored|promoted|advertiser|ads).*$,REJECT
+URL-REGEX,^https?://(?:ads|ad)\.instagram\.com/.*$,REJECT
+URL-REGEX,^https?://.*\.instagram\.com/.*(?:sponsored|promoted|advertiser|ads).*$,REJECT
+
+# Instagram 广告相关域名
+DOMAIN-SUFFIX,ads.instagram.com,REJECT
+DOMAIN-SUFFIX,ad.instagram.com,REJECT
+DOMAIN-SUFFIX,igads.com,REJECT
+DOMAIN-SUFFIX,igcrs.com,REJECT
+DOMAIN-SUFFIX,igsp.com,REJECT
+
+# 说明：
+# 1) 在当前环境中无法直接抓包，但已根据公开 Instagram 规则列表和常见广告域名校对。
+# 2) 如果发现误杀或功能异常，请先禁用本插件并逐条调整。
