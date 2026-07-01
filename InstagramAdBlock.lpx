@@ -1,14 +1,14 @@
 #!name=IG广告拦截测试
-#!desc=本地脚本无外部依赖，仅网页端生效，个人测试用
+#!desc=无外部CDN、纯本地脚本，仅网页端生效，个人测试使用
 #!author=Test
-#!version=1.1
-#!loon=3.2.0+
+#!version=1.2
+#!loon=3.1.0+
 
 [MITM]
 hostname = *.instagram.com,*.fbcdn.net,*.ads.instagram.com
 
 [Rule]
-# 广告域名直接拒绝
+# 广告&追踪域名直接拦截
 DOMAIN-SUFFIX,ads.instagram.com,REJECT
 DOMAIN-SUFFIX,admanager.instagram.com,REJECT
 DOMAIN-SUFFIX,fbads.com,REJECT
@@ -18,30 +18,32 @@ DOMAIN-SUFFIX,pixel.facebook.com,REJECT
 DOMAIN-SUFFIX,doubleclick.net,REJECT
 DOMAIN-SUFFIX,adjust.com,REJECT
 DOMAIN-SUFFIX,appsflyer.com,REJECT
+DOMAIN-SUFFIX,branch.io,REJECT
 
 [Script]
-# 纯原生JS，不依赖外部CDN，requires-body匹配网页HTML
-http-response ^https?://.*\.instagram\.com requires-body=true,tag=IG_RM_AD
-http-response ^https?://.*\.fbcdn\.net requires-body=true,tag=IG_RM_AD
+# 去掉所有script-path在线链接，只用内置函数，不会下载任何外部脚本
+http-response ^https?://.*\.instagram\.com requires-body=true,tag=IG_RemoveAd
+http-response ^https?://.*\.fbcdn\.net requires-body=true,tag=IG_RemoveAd
 
-function IG_RM_AD($req, $res) {
-    if (!$res.body) return $done($res);
-    let html = $res.body;
+function IG_RemoveAd($request, $response) {
+    if (!$response.body) return $done($response);
+    let html = $response.body;
 
-    // 全部Sponsored广告标识正则清除
-    const adRegs = [
+    // 正则批量清除所有Sponsored广告区块
+    const adPatterns = [
         /<div[^>]*data-testid="sponsored-post"[\s\S]*?<\/div>/gi,
-        /<section[^>]*>[^<]*Sponsored[\s\S]*?<\/section>/gi,
+        /<section[^>]*>[\s\S]*?Sponsored[\s\S]*?<\/section>/gi,
         /<div[^>]*aria-label[^"]*Sponsored[\s\S]*?<\/div>/gi,
         /<div[^>]*data-testid="story-sponsored"[\s\S]*?<\/div>/gi,
         /<div[^>]*data-testid="reel-sponsored"[\s\S]*?<\/div>/gi,
-        /<div[^>]*_aagj[^>]*>[^<]*Sponsored[\s\S]*?<\/div>/gi
+        /<div[^>]*class[^"]*_aagj[^>]*>[\s\S]*?Sponsored[\s\S]*?<\/div>/gi,
+        /<div[^>]*x1ypdohk[^>]*>[\s\S]*?Sponsored[\s\S]*?<\/div>/gi
     ];
-    // 循环删除广告区块
-    adRegs.forEach(reg => {
-        html = html.replace(reg, "");
-    });
 
-    $res.body = html;
-    $done($res);
+    for (const reg of adPatterns) {
+        html = html.replace(reg, "");
+    }
+
+    $response.body = html;
+    $done($response);
 }
