@@ -1,15 +1,14 @@
-#!name=Instagram广告拦截测试插件
-#!desc=拦截广告域名+MitM复写隐藏信息流/Stories/Reels广告卡片，仅本地测试使用
+#!name=IG广告拦截测试
+#!desc=本地脚本无外部依赖，仅网页端生效，个人测试用
 #!author=Test
-#!version=1.0
-#!system=ios
-#!loon=3.1.7+
+#!version=1.1
+#!loon=3.2.0+
 
 [MITM]
-hostname = *.instagram.com,*.fbcdn.net,*.ads.instagram.com,*.graph.facebook.com
+hostname = *.instagram.com,*.fbcdn.net,*.ads.instagram.com
 
 [Rule]
-# 拦截广告域名、追踪域名
+# 广告域名直接拒绝
 DOMAIN-SUFFIX,ads.instagram.com,REJECT
 DOMAIN-SUFFIX,admanager.instagram.com,REJECT
 DOMAIN-SUFFIX,fbads.com,REJECT
@@ -21,34 +20,28 @@ DOMAIN-SUFFIX,adjust.com,REJECT
 DOMAIN-SUFFIX,appsflyer.com,REJECT
 
 [Script]
-# 匹配Instagram主域名，响应后执行JS移除广告卡片
-http-response ^https?://.*\.instagram\.com script-path=https://cdn.jsdelivr.net/npm/cheerio@1.0.0-rc.12/dist/cheerio.min.js,requires-body=true,tag=IG_AD_HIDE
-http-response ^https?://.*\.fbcdn\.net script-path=https://cdn.jsdelivr.net/npm/cheerio@1.0.0-rc.12/dist/cheerio.min.js,requires-body=true,tag=IG_AD_HIDE
+# 纯原生JS，不依赖外部CDN，requires-body匹配网页HTML
+http-response ^https?://.*\.instagram\.com requires-body=true,tag=IG_RM_AD
+http-response ^https?://.*\.fbcdn\.net requires-body=true,tag=IG_RM_AD
 
-# 广告移除核心JS脚本
-function IG_AD_HIDE($request, $response) {
-    if (!$response.body) return;
-    const $ = cheerio.load($response.body);
+function IG_RM_AD($req, $res) {
+    if (!$res.body) return $done($res);
+    let html = $res.body;
 
-    // 信息流广告标识匹配（Meta官方广告class关键词）
-    const adSelectors = [
-        'div[role="article"]:has-text("Sponsored")',
-        'section:has-text("Sponsored")',
-        'div[data-testid="sponsored-post"]',
-        'div[aria-label*="Sponsored"]',
-        'div._aagj:has-text("Sponsored")',
-        'div.x1ypdohk:has-text("Sponsored")',
-        // Stories广告
-        'div[data-testid="story-sponsored"]',
-        // Reels广告
-        'div[data-testid="reel-sponsored"]'
+    // 全部Sponsored广告标识正则清除
+    const adRegs = [
+        /<div[^>]*data-testid="sponsored-post"[\s\S]*?<\/div>/gi,
+        /<section[^>]*>[^<]*Sponsored[\s\S]*?<\/section>/gi,
+        /<div[^>]*aria-label[^"]*Sponsored[\s\S]*?<\/div>/gi,
+        /<div[^>]*data-testid="story-sponsored"[\s\S]*?<\/div>/gi,
+        /<div[^>]*data-testid="reel-sponsored"[\s\S]*?<\/div>/gi,
+        /<div[^>]*_aagj[^>]*>[^<]*Sponsored[\s\S]*?<\/div>/gi
     ];
-
-    // 批量删除广告节点
-    adSelectors.forEach(sel => {
-        $(sel).remove();
+    // 循环删除广告区块
+    adRegs.forEach(reg => {
+        html = html.replace(reg, "");
     });
 
-    $response.body = $.html();
-    $done($response);
+    $res.body = html;
+    $done($res);
 }
